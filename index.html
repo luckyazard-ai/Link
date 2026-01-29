@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Pedido de Diamantes</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  body {
+    margin: 0;
+    background: #0e1117;
+    font-family: Arial, sans-serif;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  .card {
+    background: #161b22;
+    width: 100%;
+    max-width: 360px;
+    padding: 22px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.6);
+    text-align: center;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 22px;
+  }
+
+  .sub {
+    font-size: 12px;
+    color: #9da7b3;
+    margin-bottom: 20px;
+  }
+
+  label {
+    font-size: 13px;
+    margin-bottom: 6px;
+    display: block;
+    text-align: left;
+  }
+
+  input, select {
+    width: 100%;
+    padding: 11px;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    background: #21262d;
+    color: #fff;
+    margin-bottom: 15px;
+    font-size: 14px;
+  }
+
+  .total {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 10px 0 18px;
+  }
+
+  button {
+    width: 100%;
+    padding: 13px;
+    border: none;
+    border-radius: 12px;
+    background: #2f81f7;
+    color: #fff;
+    font-size: 15px;
+    cursor: pointer;
+  }
+
+  button:disabled {
+    background: #3a3f45;
+    cursor: not-allowed;
+  }
+
+  .mensagem {
+    display: none;
+    margin-top: 15px;
+    font-size: 14px;
+    color: #3fb950;
+  }
+
+  .pix {
+    display: none;
+    margin-top: 12px;
+    background: #0d1117;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 13px;
+    word-break: break-all;
+    color: #58a6ff;
+  }
+
+  .footer {
+    margin-top: 12px;
+    font-size: 11px;
+    color: #8b949e;
+  }
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <h1>💎 Pedido de Diamantes</h1>
+  <div class="sub">Atendimento automatico</div>
+
+  <label>ID do jogo</label>
+  <input id="idJogo" type="text" placeholder="Ex: 123456789">
+
+  <label>Gmail para contato</label>
+  <input id="gmail" type="email" placeholder="cliente@gmail.com">
+
+  <label>Quantidade de diamantes</label>
+  <select id="diamantes" onchange="calcularTotal()">
+    <option value="100" data-preco="2.00">100 diamantes</option>
+    <option value="200" data-preco="4.00">200 diamantes</option>
+    <option value="400" data-preco="7.00" selected>400 diamantes</option>
+    <option value="800" data-preco="13.00">800 diamantes</option>
+  </select>
+
+  <div class="total" id="total">Total: R$ 7,00</div>
+
+  <button id="botao" onclick="enviarPedido()">Enviar pedido</button>
+
+  <div class="mensagem" id="mensagem">
+    ✅ Seu pedido foi um sucesso, agora realize o pagamento com a chave pix abaixo e aguarde alguns minutos apos a compra efetuada.
+  </div>
+
+  <div class="pix" id="pix">
+    🔑 <strong>Chave PIX:</strong><br>
+    SUA_CHAVE_PIX_AQUI
+  </div>
+
+  <div class="footer">
+    * Valores calculados automaticamente<br>
+    * Entrega apos confirmacao
+  </div>
+</div>
+
+<script>
+function calcularTotal() {
+  const select = document.getElementById("diamantes");
+  const preco = select.options[select.selectedIndex].dataset.preco;
+
+  document.getElementById("total").innerText =
+    "Total: R$ " + Number(preco).toFixed(2).replace(".", ",");
+}
+
+function enviarPedido() {
+  const idJogo = document.getElementById("idJogo").value.trim();
+  const gmail = document.getElementById("gmail").value.trim();
+  const diamantes = document.getElementById("diamantes").value;
+  const total = document.getElementById("total").innerText;
+
+  if (!idJogo || !gmail) {
+    alert("Preencha todos os campos!");
+    return;
+  }
+
+  document.getElementById("botao").disabled = true;
+
+  fetch("https://discord.com/api/webhooks/1465796709488656455/sR-MfJEhXDojZVvvJ61H9eGrS124L5ieuWKLwjGDHsDl3mL2WwiqjvxSHO_rkXyQlgEg", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      username: "Pedidos de Diamantes",
+      embeds: [{
+        title: "💎 NOVO PEDIDO",
+        color: 3066993,
+        fields: [
+          { name: "🆔 ID do jogo", value: idJogo, inline: false },
+          { name: "📧 Gmail", value: gmail, inline: false },
+          { name: "💎 Diamantes", value: diamantes, inline: true },
+          { name: "💰 Total", value: total, inline: true }
+        ],
+        footer: { text: "Aguardando pagamento PIX" }
+      }]
+    })
+  })
+  .then(() => {
+    document.getElementById("mensagem").style.display = "block";
+    document.getElementById("pix").style.display = "block";
+  })
+  .catch(() => {
+    alert("Erro ao enviar o pedido.");
+    document.getElementById("botao").disabled = false;
+  });
+}
+
+calcularTotal();
+</script>
+
+</body>
+</html>
